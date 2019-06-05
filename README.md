@@ -110,7 +110,7 @@
   ``` JavaScript
   app.use(express.json())
   app.use(express.urlencoded({
-  extended: false
+    extended: false
   }))
   ```
   
@@ -138,10 +138,98 @@
   const app = express()
   app.use(express.json())
   app.use(express.urlencoded({
-  extended: false
+    extended: false
   }))
 
   app.listen(3000, () => {
-  console.log('Server on port 3000')
+    console.log('Server on port 3000')
+  })
+  ```
+
+## Hola Mundo
+
+  Para poder mostrar un `Hola Mundo!!` desde el navegador hay que tener una ruta a la que se acceda, para tener el código ordenado crearemos una carpeta dentro de `src` que se llame `routes`, dentro de esta carpeta crearemos un archivo para las rutas de tareas (En un proyecto grande conviene que tengas tus rutas ordenadas en varios archivos dependiendo de su utilidad), este archivo se va a llamar `taskRoutes.js` y en este archivo empezamos importando el framework que estamos usando (`Express`):
+
+  ``` JavaScript
+  const express = require('express')
+  const router = express.Router()
+  ```
+
+  Al inicializar `Express` lo hacemos con el método Router, ya que sólo esta parte es la que utilizaremos. Router nos permite interactuar con los métodos `HTTP` como `GET`, `POST`, `PUT`, etc.
+
+  Vamos a crear la primera ruta en la raíz:
+
+  ``` JavaScript
+  router.get('/', (req, res) => {
+    res.send("Hola Mundo!!")
+  })
+  ```
+
+  Es una ruta con el método `GET` que se llama desde la raíz del nombre de dominio (que en este caso seria [`http://localhost:3000/`](http://localhost:3000/)). Se tiene una función que se desencadena cada vez que se llama a la ruta, estas funciones se conforman por una petición (`Request`) y una respuesta (`Response`) que son las que están como parámetros. Y esta forma de escribir la función con `=>` son las funciones flecha, pero también puedes hacerlo de esta otra forma:
+
+  ``` JavaScript
+  router.get('/', function(req, res) {
+    res.send("Hola Mundo!!")
+  })
+  ```
+
+  Cuando se llama la función, manda como respuesta un `Hola Mundo!!`.
+  
+  Ya estaría todo listo pero antes estas rutas las tenemos que exportar para poderlas importar en el archivo principal (`app.js`), así que para exportarlas agregamos:
+
+  ``` JavaScript
+  module.exports = router
+  ```
+
+  Y en `app.js` importamos estas rutas:
+
+  ``` JavaScript
+  const taskRoutes = require('./routes/taskRoutes')
+  ```
+
+  Y ahora se las damos a `Express` para que las lea:
+
+  ``` JavaScript
+  app.use(taskRoutes)
+  ```
+
+  Ya que todo está en su lugar podemos probarlo, pero tenemos que recargar el proyecto (`ctrl` + `c` y luego correr de nuevo `node src/app.js`), pero para eso nos ayuda `Nodemon`, así que detenemos el servicio y ahora escribimos:
+
+  ``` bash
+  npm run dev
+  ```
+
+  `npm` que es el gestor de paquetes, le decimos que vamos a correr un script con la opción `run` que se llama `dev` (que fue el que creamos en el `package.json`) el cual hace funcionar a `Nodemon` en este proyecto.
+  
+  Refresca tu navegador y mira los cambios.
+
+  ### taskRoutes.js
+
+  ``` JavaScript
+  const express = require('express')
+  const router = express.Router()
+
+  router.get('/', (req, res) => {
+    res.send("Hola Mundo!!")
+  })
+
+  module.exports = router
+  ```
+
+  ### app.js
+
+  ``` JavaScript
+  const express = require('express')
+  const taskRoutes = require('./routes/taskRoutes')
+
+  const app = express()
+  app.use(express.json())
+  app.use(express.urlencoded({
+    extended: false
+  }))
+  app.use(taskRoutes)
+
+  app.listen(3000, () => {
+    console.log('Server on port 3000')
   })
   ```
