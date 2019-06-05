@@ -77,3 +77,71 @@
     }
   }
   ```
+
+## Configuración del Servidor
+
+  Empezaremos por crear la base de datos que se utilizará, en este proyecto se trabajará con MySQL. La base de datos se llamará  `to-do-app`
+  
+  ``` SQL
+  CREATE DATABASE `to-do-app`
+  ```
+
+  Y la única tabla que tendrá la base de datos se llamará `tasks`, los UUID son un número de 16 bytes y se compone por 32 dígitos hexadecimales divididos en cinco grupos separados por guiones (17646d96-9568-4ce0-b710-ab9ffd4a1ca4). En otros gestores de base de datos como PostgreSQL existe el tipo `UUID`, pero en MySQL no, por lo que guardaremos el UUID como varchar(36):
+
+  ``` SQL
+  CREATE TABLE `tasks` (
+    `id` varchar(36) PRIMARY KEY,
+    `title` varchar(20) NOT NULL UNIQUE,
+    `description` text,
+    `priority` tinyint(4) NOT NULL,
+    `done` BOOLEAN NOT NULL DEFAULT FALSE
+  )
+  ```
+
+  Ahora crearemos el archivo principal que habíamos declarado en el `main` del `package.json`. Creamos una carpeta llamada `src` y dentro de ella el archivo `app.js` En `app.js` importamos el framework que utilizaremos `Express` y luego lo inicializamos:
+
+  ``` JavaScript
+  const express = require('express')
+  const app = express()
+  ```
+
+  Configuramos a `Express` para que las peticiones del lado del cliente se tomen en formato `JSON`:
+
+  ``` JavaScript
+  app.use(express.json())
+  app.use(express.urlencoded({
+  extended: false
+  }))
+  ```
+  
+  Y finalmente levantaremos el servidor en el puerto 3000
+
+  ``` JavaScript
+  app.listen(3000, () => {
+    console.log('Server on port 3000')
+  })
+  ```
+
+  Después de esta configuración, desde la consola escribe:
+
+  ``` bash
+  node src/app.js
+  ```
+
+  Node es el motor que ejecuta JavaScript, así que le decimos que ejecute el archivo que está en la ruta `src/app.js`. Después de esto, entra desde tu navegador a [`http://localhost:3000`](http://localhost:3000) y verás la magia. No mostrará nada interesante aún, pero el servidor ya está levantado.
+
+  ### app.js
+
+  ``` JavaScript
+  const express = require('express')
+
+  const app = express()
+  app.use(express.json())
+  app.use(express.urlencoded({
+  extended: false
+  }))
+
+  app.listen(3000, () => {
+  console.log('Server on port 3000')
+  })
+  ```
