@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link
+    rel="stylesheet"
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+    crossorigin="anonymous">
+  <title>To-Do App</title>
+</head>
+
+<body>
+  <div class="container">
+    <h1>To-Do App</h1>
+    <% if (err) { %>
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <%= err %>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+    <% } %>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header">Add a Task!</div>
+          <div class="card-body">
+            <form action="/create" method="POST" autocomplete="off">
+              <div class="form-group">
+                <label for="title">Title</label>
+                <input type="text" class="form-control" id="title" name="title" placeholder="Add a title" required>
+                <small class="form-text text-muted">Title must be unique.</small>
+              </div>
+              <div class="form-group">
+                <label for="description">Description</label>
+                <textarea class="form-control" id="description" name="description"
+                  placeholder="Add a description"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="priority">Priority</label>
+                <select id="priority" name="priority" class="form-control" required>
+                  <option disabled selected>Choose...</option>
+                  <option value="3">High</option>
+                  <option value="2">Medium</option>
+                  <option value="1">Low</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-8">
+        <table class="table">
+          <thead class="thead-dark">
+            <tr>
+              <th>Title</th>
+              <th>Description</th>
+              <th>Priority</th>
+              <th>Options</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (tasks.length > 0) { tasks.forEach((task) => { %>
+            <tr>
+              <th><%= task.title %></th>
+              <td><%= task.description %></td>
+              <td>
+                <span class="<%= task.priority == 1 ? 'badge badge-primary' : task.priority == 2 ? 'badge badge-warning' : 'badge badge-danger' %>">
+                  <%= task.priority == 1 ? 'Low' : task.priority == 2 ? 'Medium' : 'High' %>
+                </span>
+              </td>
+              <td>
+                <div class="btn-group" role="group">
+                  <a href="/redo/<%= task.id %>" class="<%= task.done ? 'btn btn-secondary' : 'btn btn-success' %>"
+                    role="button" aria-pressed="true"><%= task.done ? 'Redo' : 'Done' %></a>
+                  <a href="/delete/<%= task.id %>" class="btn btn-danger" role="button" aria-pressed="true">Delete</a>
+                </div>
+              </td>
+            </tr>
+            <% }) } else { %>
+            <tr>
+              <th colspan="4">No data</th>
+            </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous">
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
+  </script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
+  </script>
+</body>
+
+</html>
