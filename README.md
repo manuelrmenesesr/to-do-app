@@ -80,25 +80,7 @@
 
 ## Configuración del Servidor
 
-  Empezaremos por crear la base de datos que se utilizará, en este proyecto se trabajará con MySQL. La base de datos se llamará  `to-do-app`:
-  
-  ``` SQL
-  CREATE DATABASE `to-do-app`
-  ```
-
-  Y la única tabla que tendrá la base de datos se llamará `tasks`, los UUID son un número de 16 bytes y se compone por 32 dígitos hexadecimales divididos en cinco grupos separados por guiones (17646d96-9568-4ce0-b710-ab9ffd4a1ca4). En otros gestores de base de datos como PostgreSQL existe el tipo `UUID`, pero en MySQL no, por lo que guardaremos el UUID como varchar(36):
-
-  ``` SQL
-  CREATE TABLE `tasks` (
-    `id` varchar(36) PRIMARY KEY,
-    `title` varchar(20) NOT NULL UNIQUE,
-    `description` text,
-    `priority` tinyint(4) NOT NULL,
-    `done` BOOLEAN NOT NULL DEFAULT FALSE
-  )
-  ```
-
-  Ahora crearemos el archivo principal que habíamos declarado en el `main` del `package.json`. Creamos una carpeta llamada `src` y dentro de ella el archivo `app.js`.
+  Crearemos el archivo principal que habíamos declarado en el `main` del `package.json`. Para eso crearemos una carpeta llamada `src` y dentro de ella el archivo `app.js`.
   
   En `app.js` importamos el framework que utilizaremos `Express` y luego lo inicializamos:
 
@@ -536,4 +518,330 @@
   </body>
 
   </html>
+  ```
+
+  ## Crear una Tarea
+
+  Empezaremos por crear la base de datos que se utilizará, en este proyecto se trabajará con MySQL. La base de datos se llamará  `to-do-app`:
+  
+  ``` SQL
+  CREATE DATABASE `to-do-app`
+  ```
+
+  Y la única tabla que tendrá la base de datos se llamará `tasks`, los UUID son un número de 16 bytes y se compone por 32 dígitos hexadecimales divididos en cinco grupos separados por guiones (17646d96-9568-4ce0-b710-ab9ffd4a1ca4). En otros gestores de base de datos como PostgreSQL existe el tipo `UUID`, pero en MySQL no, por lo que guardaremos el UUID como varchar(36):
+
+  ``` SQL
+  CREATE TABLE `tasks` (
+    `id` varchar(36) PRIMARY KEY,
+    `title` varchar(20) NOT NULL UNIQUE,
+    `description` text,
+    `priority` tinyint(4) NOT NULL,
+    `done` BOOLEAN NOT NULL DEFAULT FALSE
+  )
+  ```
+
+  Una vez hecho esto, crearemos un “pool” de conexiones. Que son un número de conexiones que tendrá el sistema con la base de datos, al ser un sistema pequeño no tendrá tantas conexiones.
+
+  Crearemos una nueva carpeta llamada “db” dentro del folder “src”, en esta nueva carpeta crearemos un archivo nuevo llamado “conn.js” con el siguiente contenido:
+
+  ``` JavaScript
+  const mysql = require('mysql')
+
+  var conn = mysql.createPool({
+    connectionLimit: 2,
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'to-do-app'
+  })
+
+  module.exports = conn
+  ```
+
+  En el límite de conexiones, sólo configuré dos, pero si el sistema crece sería mejor aumentar el “pool” de conexiones.
+
+  Crearemos una nueva función para guardar las tareas dentro del archivo “taskController.js”:
+
+  ``` JavaScript
+  function Create(req, res, next) {
+
+  }
+  ```
+
+  Esta función, a diferencia de la función “Render” tiene un parámetro extra, el “next”. Hay un concepto que se llama “Middleware” que no son más que capas de funciones, en otras palabras, es una forma de ejecutar una secuencia de funciones. En este caso lo que vamos a hacer es llamar la función “Create” para crear la tarea, una vez creada, mandaremos a llamar la función “Render” para volver a mostrar la vista. El “next” lo que hará es que una vez finalice la función “Create”, pasará a la función siguiente.
+
+  La sentencia “SQL” para insertar la guardaremos en una variable, y los parámetros en la cadena se colocan como “?”:
+
+  ``` JavaScript
+  function Create(req, res, next) {
+    let sql = 'INSERT INTO tasks VALUES(?, ?, ?, ?, ?)'
+  }
+  ```
+
+  Ahora, para mapear los parámetros tenemos que importar el módulo de “MySQL”:
+
+  ``` JavaScript
+  const mysql = require('mysql')
+  ```
+
+  Para poder crear los “UUID” tenemos también que importar este módulo, usaremos la versión 4 la cual consiste en que regresa un “UUID” aleatorio, donde la probabilidad de que se repita uno es casi imposible (por no decir imposible):
+
+  ``` JavaScript
+  const uuidv4 = require('uuid/v4')
+  ```
+
+  Una vez importado estos módulos, ya podemos usarlos, en la función que estamos haciendo, formateamos la sentencia:
+
+  ``` JavaScript
+  function Create(req, res, next) {
+    let sql = 'INSERT INTO tasks VALUES(?, ?, ?, ?, ?)'
+    let query = mysql.format(sql, [
+      uuidv4(),
+      req.body.title,
+      req.body.description,
+      req.body.priority,
+      false
+    ])
+  }
+  ```
+
+  El primer parámetro, hace referencia al ID, y llamamos al módulo “UUID” que nos regresará un “UUID”, los demás parámetros los tomaremos del cuerpo de la petición (“Request”), por eso es que todos vienen de “req.body”, y el último es si está hecha la tarea, que por defecto es “false”.
+
+  Para poder enviar la sentencia a la base de datos, tenemos que importar el “pool” de conexiones que hicimos:
+
+  ``` JavaScript
+  const conn = require('../db/conn')
+  ```
+
+  Ahora con la conexión, podemos enviar la sentencia:
+
+  ``` JavaScript
+  function Create(req, res, next) {
+    let sql = 'INSERT INTO tasks VALUES(?, ?, ?, ?, ?)'
+    let query = mysql.format(sql, [
+      uuidv4(),
+      req.body.title,
+      req.body.description,
+      req.body.priority,
+      false
+    ])
+    conn.query(query, (err, result) => {
+      if (err) throw err
+      console.log(result)
+      next()
+    })
+  }
+  ```
+
+  “conn.query” en la función, enviamos la sentencia como primer parámetro, y como segundo parámetro es una función que se llama “CallBack”, este “CallBack” es una función que se ejecuta al momento de que la base de datos regresa una respuesta, esto lo hacemos así, debido a que la base de datos puede tomarse su tiempo en dar una respuesta, por lo que es la forma de toda la vida de hacer las peticiones asíncronamente. En el primer parámetro del “CallBack” recibimos un error en caso de que no se haya ejecutado correctamente la petición, y como segundo parámetro el resultado de la petición.
+
+  Hay un problema con los “CallBack”, el famoso “CallBack Hell”. Imagina que tienes que consultar varias veces la base de datos, o consumir varias APIs, o ambas :scream:. En ese caso tendrías un “CallBack” dentro de otro “CallBack” dentro de otro “CallBack”, eso haría difícil el código de comprender. Aquí un ejemplo muy apocalíptico:
+
+  ``` JavaScript
+  function Ejemplo(obj) {
+    obj.hasAlgo1((error1, resultado1) => {
+      if (error1) throw error1
+      obj.hasAlgo2(resultado1, (error2, resultado2) => {
+        if (error2) throw error2
+        obj.hasAlgo3(resultado2, (error3, resultado3) => {
+          if (error3) throw error3
+          console.log('El resultado final es:', resultado3)
+        })
+      })
+    })
+  }
+  ```
+
+  Debido a esto nacieron las promesas, las promesas dan dos resultados, un “Resolve” en caso de que todo haya salido bien, y un “Reject” en caso contrario, el mismo ejemplo anterior pero ahora usando promesas:
+
+  ``` JavaScript
+  function Ejemplo(obj) {
+    obj.hasAlgo1()
+      .then((resultado1) => {
+        return obj.hasAlgo2(resultado1)
+      })
+      .then((resultado2) => {
+        return obj.hasAlgo3(resultado2)
+      })
+      .then((resultado3) => {
+        console.log('El resultado final es:', resultado3)
+      })
+      .catch((cualquierError) => {
+        throw cualquierError
+      })
+  }
+  ```
+
+  Las promesas vinieron a facilitar el problema de la legibilidad que tienen los “CallBack” pero después llegó “Async Await” a JavaScript. “Async Await” funciona también con promesas pero aún más legible. Nuevamente el mismo ejemplo pero ahora con “Async Await”:
+
+  ``` JavaScript
+  async function Ejemplo(obj) {
+    try {
+      let resultado1 = await obj.hasAlgo1()
+      let resultado2 = await obj.hasAlgo2(resultado1)
+      let resultado3 = await obj.hasAlgo3(resultado2)
+      console.log('El resultado final es:', resultado3)
+    } catch (cualquierError) {
+      throw cualquierError
+    }
+  }
+  ```
+
+  Por lo que después de esto, estoy seguro que te sientes convencido(a) de querer usar “Async Await”, cosa que vamos a hacer, pero existe un problema en particular con el módulo de MySQL (no es en todos los casos). Al momento de realizar este documento, el módulo de “MySQL” no regresa promesas, por lo que no podremos usar promesas, pero tampoco “Async Await” ya que este último también depende de las promesas.
+
+  Antes de desanimarnos, los amigos de “Node.js” crearon una herramienta de “promisificar”, lo que significa que podemos convertir lo que necesitemos a un objeto que regresa promesas. Para esto, en el archivo de “conn.js” importamos la herramienta de “promisificación”:
+
+  ``` JavaScript
+  const { promisify } = require('util')
+  ```
+
+  “util” tiene varias herramientas, pero sólo requerimos “promisify”.
+
+  Y ahora, antes de exportar la conexión (“conn”) la “promisificamos”:
+
+  ``` JavaScript
+  conn.query = promisify(conn.query)
+  ```
+
+  Ya podemos usar “Async Await”. Vamos a refactorizar la función “Create” de “taskController.js”:
+
+  ``` JavaScript
+  async function Create(req, res, next) {
+    try {
+      let sql = 'INSERT INTO tasks VALUES(?, ?, ?, ?, ?)'
+      let query = mysql.format(sql, [
+        uuidv4(),
+        req.body.title,
+        req.body.description,
+        req.body.priority,
+        false
+      ])
+      await conn.query(query)
+    } catch (err) {
+      if (err.code === 'ECONNREFUSED')
+        req.err = "Connection refused by DB server"
+      else if (err.code === 'ER_DUP_ENTRY')
+        req.err = "Duplicated tasks' title are not allowed"
+      else {
+        console.log(err.code)
+        console.log(err)
+        req.err = 'Internal server error'
+      }
+    } finally {
+      next()
+    }
+  }
+  ```
+
+  Hace lo mismo que la función anterior, sólo le agregué algunas cosas en caso de que existiese un error, se va a mandar un mensaje dependiendo el tipo de error que existe. Ese mensaje de error, lo estoy guardando en “req.err” que es una variable dentro de la petición que originalmente no existe, yo la estoy creando para guardar un mensaje de error y después mostrarla en la vista. Independientemente de lo que haya pasado, al final de todo llamo a “next()” para que pase a la siguiente función (que sería “Render”).
+
+  Sólo queda exportar esta función junto con la de “Render”:
+
+  ``` JavaScript
+  module.exports = {
+    Create,
+    Render
+  }
+  ```
+
+  En el archivo de rutas tenemos una ruta así:
+
+  ``` JavaScript
+  router.get('/', taskController.Render)
+  ```
+
+  Agregaremos otra ruta idéntica, la diferencia es que en vez de ser llamada con “GET”, será llamada con “POST”, pero para evitar duplicar código escribindolo de esta manera (que funciona igualmente):
+
+  ``` JavaScript
+  router.get('/', taskController.Render)
+  router.post('/', taskController.Create, taskController.Render)
+  ```
+
+  Lo que haremos es juntarlas en una, de esta manera:
+
+  ``` JavaScript
+  router.route('/')
+    .get(taskController.Render)
+    .post(taskController.Create, taskController.Render)
+  ```
+
+  Y así es más legible. Si se llama esa ruta con “GET”, mandará a llamar a la función “Render”, si esa misma ruta es llamada con “POST”, mandará a llamar a la función “Create” y después a la función “Render”.
+
+  Guarda tus cambios, “Nodemon” refrescará el proyecto y en tu navegador podrás guardar tareas, por el momento no las mostrará pero corrobora que se guarden en la base de datos.
+
+  ### conn.js
+
+  ``` JavaScript
+  const mysql = require('mysql')
+  const { promisify } = require('util')
+
+  var conn = mysql.createPool({
+    connectionLimit: 2,
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'to-do-app'
+  })
+
+  conn.query = promisify(conn.query)
+
+  module.exports = conn
+  ```
+
+  ### taskController.js
+
+  ``` JavaScript
+  const mysql = require('mysql')
+  const uuidv4 = require('uuid/v4')
+  const conn = require('../db/conn')
+
+  async function Create(req, res, next) {
+    try {
+      let sql = 'INSERT INTO tasks VALUES(?, ?, ?, ?, ?)'
+      let query = mysql.format(sql, [uuidv4(), req.body.title, req.body.description, req.body.priority, false])
+      await conn.query(query)
+    } catch (err) {
+      if (err.code === 'ECONNREFUSED')
+        req.err = "Connection refused by DB server"
+      else if (err.code === 'ER_DUP_ENTRY')
+        req.err = "Duplicated tasks' title are not allowed"
+      else {
+        console.log(err.code)
+        console.log(err)
+        req.err = 'Internal server error'
+      }
+    } finally {
+      next()
+    }
+  }
+
+  function Render(req, res) {
+    res.status(200).render('index', {
+      'err': null,
+      'tasks': []
+    })
+  }
+
+  module.exports = {
+    Create,
+    Render
+  }
+  ```
+
+  ### taskRoutes.js
+
+  ``` JavaScript
+  const express = require('express')
+  const taskController = require('../controllers/taskController')
+
+  const router = express.Router()
+
+  router.route('/')
+    .get(taskController.Render)
+    .post(taskController.Create, taskController.Render)
+  router.all('/*', (req, res) => {
+    res.status(404).send("404 Not Found")
+  })
+
+  module.exports = router
   ```
