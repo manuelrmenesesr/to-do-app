@@ -222,31 +222,31 @@
 
   Vamos a mostrar la vista de tareas. Este proyecto es un CRUD (Create - Read - Update - Delete) de tareas, se podrán crear tareas, se verán en una tabla, al marcar como hecha o para rehacer se actualizarán y se podrán eliminar. Empezaremos por mostrar las tareas.
 
-  Una vez que ya tenemos la ruta del “hola mundo!!”, la utilizaremos para renderizar una vista con HTML en lugar de enviar texto plano. EJS nos ayuda para esto, es JavaScript embebido con el cual podremos hacer un ciclo hasta llenar la tabla con las tareas. Pero antes de eso, hay que decirle a “Express” que lo utilizaremos.
+  Una vez que ya tenemos la ruta del `hola mundo!!`, la utilizaremos para renderizar una vista con HTML en lugar de enviar texto plano. EJS nos ayuda para esto, es JavaScript embebido con el cual podremos hacer un ciclo hasta llenar la tabla con las tareas. Pero antes de eso, hay que decirle a `Express` que lo utilizaremos.
 
-  Hay dos cosas a configurar, en “Express” debemos declarar una variable que se llame “view engine” con la cual podemos decirle el motor de plantillas que vamos a usar, hay varios motores de plantillas que puedes buscar en la página de “npm”.
+  Hay dos cosas a configurar, en `Express` debemos declarar una variable que se llame `view engine` con la cual podemos decirle el motor de plantillas que vamos a usar, hay varios motores de plantillas que puedes buscar en la página de `npm`.
 
   ``` JavaScript
   app.set('view engine', 'ejs')
   ```
 
-  La segunda cosa a configurar es otra variable en la que “Express” debe buscar las vistas que se llama “views”. A esta variable le vamos a pasar la ruta a la carpeta en la que crearemos nuestras vistas. Para hacerlo utilizaremos un módulo que ya viene integrado con Node que se llama “Path”:
+  La segunda cosa a configurar es otra variable en la que `Express` debe buscar las vistas que se llama `views`. A esta variable le vamos a pasar la ruta a la carpeta en la que crearemos nuestras vistas. Para hacerlo utilizaremos un módulo que ya viene integrado con Node que se llama `Path`:
 
   ``` JavaScript
   const path = require('path')
   ```
 
-  Con él podemos armar las rutas separando los directorios con “/” o con “\” dependiendo en que sistema operativo que nos encontremos y nosotros no tengamos que modificarlo si cambiamos de un sistema operativo a otro:
+  Con él podemos armar las rutas separando los directorios con `/` o con `\` dependiendo en que sistema operativo que nos encontremos y nosotros no tengamos que modificarlo si cambiamos de un sistema operativo a otro:
 
   ``` JavaScript
   app.set('views', path.join(__dirname, 'views'))
   ```
 
-  Una vez esto configurado, ya podemos renderizar una vista con “Express”, así que vamos a crear nuestra vista. El objetivo de este documento no es explicar HTML, ni Bootstrap, sólo vamos a explicar EJS, la vista la podrás encontrar al final de esta sección o también [aquí](https://github.com/maeneser/to-do-app/blob/master/src/views/index.ejs), vamos a crear una carpeta dentro de “src” que se llame “views”, y dentro de ahí un archivo llamado “index.ejs”.
+  Una vez esto configurado, ya podemos renderizar una vista con `Express`, así que vamos a crear nuestra vista. El objetivo de este documento no es explicar HTML, ni Bootstrap, sólo vamos a explicar EJS, la vista la podrás encontrar al final de esta sección o también [aquí](https://github.com/maeneser/to-do-app/blob/master/src/views/index.ejs), vamos a crear una carpeta dentro de `src` que se llame `views`, y dentro de ahí un archivo llamado `index.ejs`.
 
-  La sintaxis de “EJS” es “<% … %>”, en donde en medio va lo que quieras hacer, si quieres imprimir una variable utiliza la sintaxis “<%= variable1 %>”.
+  La sintaxis de `EJS` es `<% … %>`, en donde en medio va lo que quieras hacer, si quieres imprimir una variable utiliza la sintaxis `<%= variable1 %>`.
 
-  En el “index.ejs” hay una alerta de error en caso de que al momento de renderizar la vista la variable de “err” trajera alguna información:
+  En el `index.ejs` hay una alerta de error en caso de que al momento de renderizar la vista la variable de `err` trajera alguna información:
 
   ``` HTML
   <% if (err) { %>
@@ -259,7 +259,7 @@
   <% } %>
   ```
 
-  Para renderizar la tabla con la información se hace un “For Each” en caso de que la variable “tasks” trajera información, en caso contrario se renderiza una sola fila para decir que no hay información:
+  Para renderizar la tabla con la información se hace un `For Each` en caso de que la variable `tasks` trajera información, en caso contrario se renderiza una sola fila para decir que no hay información:
 
   ``` HTML
   <tbody>
@@ -275,7 +275,7 @@
   </tbody>
   ```
 
-  En caso de que existieran tareas, se imprime la información. Para el caso de las prioridades y el botón de hacer/rehacer se utilizan operadores ternarios para saber los estilos “CSS” que deben usar con “Bootstrap”. Los operadores ternarios son otra forma de hacer condiciones basadas en la estructura:
+  En caso de que existieran tareas, se imprime la información. Para el caso de las prioridades y el botón de hacer/rehacer se utilizan operadores ternarios para saber los estilos `CSS` que deben usar con `Bootstrap`. Los operadores ternarios son otra forma de hacer condiciones basadas en la estructura:
 
   Condición ? Verdadero : Falso
 
@@ -283,7 +283,7 @@
 
   Condición 1 ? Verdadero : Condición 2 ? Verdadero : Falso
 
-  Por lo que con “EJS” puedes utilizar esta forma de hacer condiciones para saber qué estilo o que contenido renderizar.
+  Por lo que con `EJS` puedes utilizar esta forma de hacer condiciones para saber qué estilo o que contenido renderizar.
 
   Se necesita saber qué prioridad tiene cada tarea para saber qué estilos le toca y después saber también qué texto se coloca. En el caso del botón de hacer/rehacer se necesita saber si la tarea está hecha o no para saber si poner un botón verde o gris:
 
@@ -318,7 +318,7 @@
   </tr>
   ```
 
-  Una vez configurado “EJS” con “Express” y la vista creada, crearemos un nuevo archivo con el fin de tener todo el código organizado, primero creamos una carpeta dentro de “src” llamada “controllers”, y en ella creamos el archivo llamado “taskController.js”. En este archivo crearemos una función para renderizar la vista que como parámetros tiene el “Request” y la “Response” ya que recibirá la petición y dará una respuesta, esta respuesta tiene un estatus 200 que significa que todo salió bien, luego con la función render, renderizará la vista con nombre “index” y como segundo parámetro enviamos la información que necesita la vista para funcionar en formato “JSON”:
+  Una vez configurado `EJS` con `Express` y la vista creada, crearemos un nuevo archivo con el fin de tener todo el código organizado, primero creamos una carpeta dentro de `src` llamada `controllers`, y en ella creamos el archivo llamado `taskController.js`. En este archivo crearemos una función para renderizar la vista que como parámetros tiene el `Request` y la `Response` ya que recibirá la petición y dará una respuesta, esta respuesta tiene un estatus 200 que significa que todo salió bien, luego con la función render, renderizará la vista con nombre `index` y como segundo parámetro enviamos la información que necesita la vista para funcionar en formato `JSON`:
 
   ``` JavaScript
   function Render(req, res) {
@@ -337,19 +337,19 @@
   }
   ```
 
-  Sólo queda reemplazar lo que se hará al llamar la ruta principal, en el archivo de rutas (“taskRoutes.js”) importamos el archivo que acabamos de crear:
+  Sólo queda reemplazar lo que se hará al llamar la ruta principal, en el archivo de rutas (`taskRoutes.js`) importamos el archivo que acabamos de crear:
 
   ``` JavaScript
   const taskController = require('../controllers/taskController')
   ```
 
-  Reemplazamos la función que tiene para mandar el “Hola Mundo!!” por la función “Render” del archivo “taskController.js”:
+  Reemplazamos la función que tiene para mandar el `Hola Mundo!!` por la función `Render` del archivo `taskController.js`:
 
   ``` JavaScript
   router.get('/', taskController.Render)
   ```
 
-  Ahora ya está todo bien configurado, pero agregaremos una ruta extra, que nos ayudará en caso de que alguien entre a una ruta que no existe, le mandaremos el famoso error “404 Not Found”:
+  Ahora ya está todo bien configurado, pero agregaremos una ruta extra, que nos ayudará en caso de que alguien entre a una ruta que no existe, le mandaremos el famoso error `404 Not Found`:
 
   ``` JavaScript
   router.all('/*', (req, res) => {
@@ -357,7 +357,7 @@
   })
   ```
 
-  Ahora guarda todos los cambios y “Nodemon” recargará el servidor y verás los cambios en tu navegador.
+  Ahora guarda todos los cambios y `Nodemon` recargará el servidor y verás los cambios en tu navegador.
 
   ### app.js
 
@@ -540,9 +540,9 @@
   )
   ```
 
-  Una vez hecho esto, crearemos un “pool” de conexiones. Que son un número de conexiones que tendrá el sistema con la base de datos, al ser un sistema pequeño no tendrá tantas conexiones.
+  Una vez hecho esto, crearemos un `pool` de conexiones. Que son un número de conexiones que tendrá el sistema con la base de datos, al ser un sistema pequeño no tendrá tantas conexiones.
 
-  Crearemos una nueva carpeta llamada “db” dentro del folder “src”, en esta nueva carpeta crearemos un archivo nuevo llamado “conn.js” con el siguiente contenido:
+  Crearemos una nueva carpeta llamada `db` dentro del folder `src`, en esta nueva carpeta crearemos un archivo nuevo llamado `conn.js` con el siguiente contenido:
 
   ``` JavaScript
   const mysql = require('mysql')
@@ -558,9 +558,9 @@
   module.exports = conn
   ```
 
-  En el límite de conexiones, sólo configuré dos, pero si el sistema crece sería mejor aumentar el “pool” de conexiones.
+  En el límite de conexiones, sólo configuré dos, pero si el sistema crece sería mejor aumentar el `pool` de conexiones.
 
-  Crearemos una nueva función para guardar las tareas dentro del archivo “taskController.js”:
+  Crearemos una nueva función para guardar las tareas dentro del archivo `taskController.js`:
 
   ``` JavaScript
   function Create(req, res, next) {
@@ -568,9 +568,9 @@
   }
   ```
 
-  Esta función, a diferencia de la función “Render” tiene un parámetro extra, el “next”. Hay un concepto que se llama “Middleware” que no son más que capas de funciones, en otras palabras, es una forma de ejecutar una secuencia de funciones. En este caso lo que vamos a hacer es llamar la función “Create” para crear la tarea, una vez creada, mandaremos a llamar la función “Render” para volver a mostrar la vista. El “next” lo que hará es que una vez finalice la función “Create”, pasará a la función siguiente.
+  Esta función, a diferencia de la función `Render` tiene un parámetro extra, el `next`. Hay un concepto que se llama `Middleware` que no son más que capas de funciones, en otras palabras, es una forma de ejecutar una secuencia de funciones. En este caso lo que vamos a hacer es llamar la función `Create` para crear la tarea, una vez creada, mandaremos a llamar la función `Render` para volver a mostrar la vista. El `next` lo que hará es que una vez finalice la función `Create`, pasará a la función siguiente.
 
-  La sentencia “SQL” para insertar la guardaremos en una variable, y los parámetros en la cadena se colocan como “?”:
+  La sentencia `SQL` para insertar la guardaremos en una variable, y los parámetros en la cadena se colocan como `?`:
 
   ``` JavaScript
   function Create(req, res, next) {
@@ -578,13 +578,13 @@
   }
   ```
 
-  Ahora, para mapear los parámetros tenemos que importar el módulo de “MySQL”:
+  Ahora, para mapear los parámetros tenemos que importar el módulo de `MySQL`:
 
   ``` JavaScript
   const mysql = require('mysql')
   ```
 
-  Para poder crear los “UUID” tenemos también que importar este módulo, usaremos la versión 4 la cual consiste en que regresa un “UUID” aleatorio, donde la probabilidad de que se repita uno es casi imposible (por no decir imposible):
+  Para poder crear los `UUID` tenemos también que importar este módulo, usaremos la versión 4 la cual consiste en que regresa un `UUID` aleatorio, donde la probabilidad de que se repita uno es casi imposible (por no decir imposible):
 
   ``` JavaScript
   const uuidv4 = require('uuid/v4')
@@ -605,9 +605,9 @@
   }
   ```
 
-  El primer parámetro, hace referencia al ID, y llamamos al módulo “UUID” que nos regresará un “UUID”, los demás parámetros los tomaremos del cuerpo de la petición (“Request”), por eso es que todos vienen de “req.body”, y el último es si está hecha la tarea, que por defecto es “false”.
+  El primer parámetro, hace referencia al ID, y llamamos al módulo `UUID` que nos regresará un `UUID`, los demás parámetros los tomaremos del cuerpo de la petición (`Request`), por eso es que todos vienen de `req.body`, y el último es si está hecha la tarea, que por defecto es `false`.
 
-  Para poder enviar la sentencia a la base de datos, tenemos que importar el “pool” de conexiones que hicimos:
+  Para poder enviar la sentencia a la base de datos, tenemos que importar el `pool` de conexiones que hicimos:
 
   ``` JavaScript
   const conn = require('../db/conn')
@@ -633,9 +633,9 @@
   }
   ```
 
-  “conn.query” en la función, enviamos la sentencia como primer parámetro, y como segundo parámetro es una función que se llama “CallBack”, este “CallBack” es una función que se ejecuta al momento de que la base de datos regresa una respuesta, esto lo hacemos así, debido a que la base de datos puede tomarse su tiempo en dar una respuesta, por lo que es la forma de toda la vida de hacer las peticiones asíncronamente. En el primer parámetro del “CallBack” recibimos un error en caso de que no se haya ejecutado correctamente la petición, y como segundo parámetro el resultado de la petición.
+   En la función `conn.query`, enviamos la sentencia como primer parámetro, y como segundo parámetro es una función que se llama `CallBack`, este `CallBack` es una función que se ejecuta al momento de que la base de datos regresa una respuesta, esto lo hacemos así, debido a que la base de datos puede tomarse su tiempo en dar una respuesta, por lo que es la forma de toda la vida de hacer las peticiones asíncronamente. En el primer parámetro del `CallBack` recibimos un error en caso de que no se haya ejecutado correctamente la petición, y como segundo parámetro el resultado de la petición.
 
-  Hay un problema con los “CallBack”, el famoso “CallBack Hell”. Imagina que tienes que consultar varias veces la base de datos, o consumir varias APIs, o ambas :scream:. En ese caso tendrías un “CallBack” dentro de otro “CallBack” dentro de otro “CallBack”, eso haría difícil el código de comprender. Aquí un ejemplo muy apocalíptico:
+  Hay un problema con los `CallBack`, el famoso `CallBack Hell`. Imagina que tienes que consultar varias veces la base de datos, o consumir una API, o ambas :scream:. En ese caso tendrías un `CallBack` dentro de otro `CallBack` dentro de otro `CallBack`, eso haría difícil el código de comprender. Aquí un ejemplo muy apocalíptico:
 
   ``` JavaScript
   function Ejemplo(obj) {
@@ -652,7 +652,7 @@
   }
   ```
 
-  Debido a esto nacieron las promesas, las promesas dan dos resultados, un “Resolve” en caso de que todo haya salido bien, y un “Reject” en caso contrario, el mismo ejemplo anterior pero ahora usando promesas:
+  Debido a esto nacieron las promesas, las promesas dan dos resultados, un `Resolve` en caso de que todo haya salido bien, y un `Reject` en caso contrario, el mismo ejemplo anterior pero ahora usando promesas:
 
   ``` JavaScript
   function Ejemplo(obj) {
@@ -672,7 +672,7 @@
   }
   ```
 
-  Las promesas vinieron a facilitar el problema de la legibilidad que tienen los “CallBack” pero después llegó “Async Await” a JavaScript. “Async Await” funciona también con promesas pero aún más legible. Nuevamente el mismo ejemplo pero ahora con “Async Await”:
+  Las promesas vinieron a facilitar el problema de la legibilidad que tienen los `CallBack` pero después llegó `Async Await` a JavaScript. `Async Await` funciona también con promesas pero aún más legible. Nuevamente el mismo ejemplo pero ahora con `Async Await`:
 
   ``` JavaScript
   async function Ejemplo(obj) {
@@ -687,23 +687,23 @@
   }
   ```
 
-  Por lo que después de esto, estoy seguro que te sientes convencido(a) de querer usar “Async Await”, cosa que vamos a hacer, pero existe un problema en particular con el módulo de MySQL (no es en todos los casos). Al momento de realizar este documento, el módulo de “MySQL” no regresa promesas, por lo que no podremos usar promesas, pero tampoco “Async Await” ya que este último también depende de las promesas.
+  Por lo que después de esto, estoy seguro que te sientes convencido(a) de querer usar `Async Await`, cosa que vamos a hacer, pero existe un problema en particular con el módulo de MySQL (no es en todos los casos). Al momento de realizar este documento, el módulo de `MySQL` no regresa promesas, por lo que no podremos usar promesas, pero tampoco `Async Await` ya que este último también depende de las promesas.
 
-  Antes de desanimarnos, los amigos de “Node.js” crearon una herramienta de “promisificar”, lo que significa que podemos convertir lo que necesitemos a un objeto que regresa promesas. Para esto, en el archivo de “conn.js” importamos la herramienta de “promisificación”:
+  Antes de desanimarnos, los amigos de `Node.js` crearon una herramienta para `promisificar`, lo que significa que podemos convertir lo que necesitemos a un objeto que regresa promesas. Para esto, en el archivo de `conn.js` importamos la herramienta de `promisificación`:
 
   ``` JavaScript
   const { promisify } = require('util')
   ```
 
-  “util” tiene varias herramientas, pero sólo requerimos “promisify”.
+  `util` tiene varias herramientas, pero sólo requerimos `promisify`.
 
-  Y ahora, antes de exportar la conexión (“conn”) la “promisificamos”:
+  Y ahora, antes de exportar la conexión (`conn`) la `promisificamos`:
 
   ``` JavaScript
   conn.query = promisify(conn.query)
   ```
 
-  Ya podemos usar “Async Await”. Vamos a refactorizar la función “Create” de “taskController.js”:
+  Ya podemos usar `Async Await`. Vamos a refactorizar la función `Create` de `taskController.js`, es importante colocar `async` antes de `function Create` para indicar que será una función que trabaja con `Async Await`:
 
   ``` JavaScript
   async function Create(req, res, next) {
@@ -733,9 +733,9 @@
   }
   ```
 
-  Hace lo mismo que la función anterior, sólo le agregué algunas cosas en caso de que existiese un error, se va a mandar un mensaje dependiendo el tipo de error que existe. Ese mensaje de error, lo estoy guardando en “req.err” que es una variable dentro de la petición que originalmente no existe, yo la estoy creando para guardar un mensaje de error y después mostrarla en la vista. Independientemente de lo que haya pasado, al final de todo llamo a “next()” para que pase a la siguiente función (que sería “Render”).
+  Hace lo mismo que la función anterior, sólo le agregué algunas cosas en caso de que existiese un error, se va a mandar un mensaje dependiendo el tipo de error que existe. Ese mensaje de error, lo estoy guardando en `req.err` que es una variable dentro de la petición que originalmente no existe, yo la estoy creando para guardar un mensaje de error y después mostrarla en la vista. Independientemente de lo que haya pasado, al final de todo llamo a `next()` para que pase a la siguiente función (que sería `Render`).
 
-  Sólo queda exportar esta función junto con la de “Render”:
+  Sólo queda exportar esta función junto con la de `Render`:
 
   ``` JavaScript
   module.exports = {
@@ -750,7 +750,7 @@
   router.get('/', taskController.Render)
   ```
 
-  Agregaremos otra ruta idéntica, la diferencia es que en vez de ser llamada con “GET”, será llamada con “POST”, pero para evitar duplicar código escribindolo de esta manera (que funciona igualmente):
+  Agregaremos otra ruta idéntica, la diferencia es que en vez de ser llamada con `GET`, será llamada con `POST`, pero para evitar duplicar código escribindolo de esta manera (que funciona igualmente):
 
   ``` JavaScript
   router.get('/', taskController.Render)
@@ -765,9 +765,9 @@
     .post(taskController.Create, taskController.Render)
   ```
 
-  Y así es más legible. Si se llama esa ruta con “GET”, mandará a llamar a la función “Render”, si esa misma ruta es llamada con “POST”, mandará a llamar a la función “Create” y después a la función “Render”.
+  Y así es más legible. Si se llama esa ruta con `GET`, mandará a llamar a la función `Render`, si esa misma ruta es llamada con `POST`, mandará a llamar a la función `Create` y después a la función `Render`.
 
-  Guarda tus cambios, “Nodemon” refrescará el proyecto y en tu navegador podrás guardar tareas, por el momento no las mostrará pero corrobora que se guarden en la base de datos.
+  Guarda tus cambios, `Nodemon` refrescará el proyecto y en tu navegador podrás guardar tareas, por el momento no las mostrará pero corrobora que se guarden en la base de datos.
 
   ### conn.js
 
@@ -844,4 +844,166 @@
   })
 
   module.exports = router
+  ```
+
+## Ver las Tareas
+
+  Ya que podemos guardar tareas en la base de datos, es momento de verlas en la vista, ya tenemos una función que se llama `Render` en `taskController.js` que manda la vista, pero ahora lo hace enviando los datos vacíos. Lo que debemos hacer es modificar ese método para que consulte la base de datos y mande la información.
+
+  Antes de enviar la vista crearemos una variable `task` inicianizandola como un arreglo vacío, que será la que se envíe a la vista, por lo que la agregamos también en la respuesta:
+
+  ``` JavaScript
+  function Render(req, res) {
+    let tasks = []
+    res.status(200).render('index', {
+      'err': null,
+      'tasks': tasks
+    })
+  }
+  ```
+
+  Ahora crearemos la estructura de un `try-catch-finally`, en donde al final se renderiza la vista:
+
+  ``` JavaScript
+  function Render(req, res) {
+    let tasks = []
+    try {
+
+    } catch (err) {
+
+    } finally {
+      res.status(200).render('index', {
+        'err': null,
+        'tasks': tasks
+      })
+    }
+  }
+  ```
+
+  Dentro del `try` crearemos la sentencia sql:
+
+  ``` JavaScript
+  function Render(req, res) {
+    let tasks = []
+    try {
+      let sql = "SELECT * FROM tasks ORDER BY priority DESC, title"
+    } catch (err) {
+
+    } finally {
+      res.status(200).render('index', {
+        'err': null,
+        'tasks': tasks
+      })
+    }
+  }
+  ```
+
+  Ahora, esta sentencia se la enviaremos a la base de datos, como estamos usando `Async Await`, hay que colocar `async` antes de `function Render`, y enviamos la sentencia a la base de datos con `await`:
+
+  ``` JavaScript
+  async function Render(req, res) {
+    let tasks = []
+    try {
+      let sql = "SELECT * FROM tasks ORDER BY priority DESC, title"
+      tasks = await conn.query(sql)
+    } catch (err) {
+
+    } finally {
+      res.status(200).render('index', {
+        'err': null,
+        'tasks': tasks
+      })
+    }
+  }
+  ```
+
+  En caso de que existiese un error, se manda un mensaje con base a qué tipo de error es:
+
+  ``` JavaScript
+  async function Render(req, res) {
+    let tasks = []
+    try {
+      let sql = "SELECT * FROM tasks ORDER BY priority DESC, title"
+      tasks = await conn.query(sql)
+    } catch (err) {
+      if (err.code === 'ECONNREFUSED')
+        req.err = 'Connection refused by DB server'
+      else {
+        console.log(err.code)
+        console.log(err)
+        req.err = 'Internal server error'
+      }
+    } finally {
+      res.status(200).render('index', {
+        'err': null,
+        'tasks': tasks
+      })
+    }
+  }
+  ```
+
+  Fijate que el error lo estoy guardando en `req.err` (igual que en la función `Create`), en el caso de crear una tarea, puede ya venir con información esta variable desde la función `Create` (recuerda que la función `Create` se ejecuta antes que `Render`), y suponiendo que exista un error en la función `Render` también, va a mostrar el último error que surgió (que será el error ocurrido en `Render`). También puede existir el caso del que no se pudo guardar la tarea, entonces `req.err` ya vendría con un mensaje desde la función `Create`, pero en la función `Render` no hubo ningún problema, en ese caso se mostrará el error que venga de la función `Create`. Ahora estamos enviando un `null` a la vista, sólo tenemos que enviar a la vista cualquier cosa que tenga la variable `req.err` (Si no hubo ningún error, esa variable ni existiría por lo que se enviaría un `null`):
+
+  ``` JavaScript
+  res.status(200).render('index', {
+    'err': req.err,
+    'tasks': tasks
+  })
+  ```
+  No es necesario mover nada más, porque las funciones ya se mandan a llamar, sólo consultamos la base de datos para mandarla al momento de renderizar.
+
+  Guarda los cambios, `Nodemon` actualizará el servidor, refresca tu navegador y mira las tareas.
+
+  ### taskController.js
+
+  ``` JavaScript
+  const mysql = require('mysql')
+  const uuidv4 = require('uuid/v4')
+  const conn = require('../db/conn')
+
+  async function Create(req, res, next) {
+    try {
+      let sql = 'INSERT INTO tasks VALUES(?, ?, ?, ?, ?)'
+      let query = mysql.format(sql, [uuidv4(), req.body.title, req.body.description, req.body.priority, false])
+      await conn.query(query)
+    } catch (err) {
+      if (err.code === 'ECONNREFUSED')
+        req.err = "Connection refused by DB server"
+      else if (err.code === 'ER_DUP_ENTRY')
+        req.err = "Duplicated tasks' title are not allowed"
+      else {
+        console.log(err.code)
+        console.log(err)
+        req.err = 'Internal server error'
+      }
+    } finally {
+      next()
+    }
+  }
+
+  async function Render(req, res) {
+    let tasks = []
+    try {
+      let sql = "SELECT * FROM tasks ORDER BY priority DESC, title"
+      tasks = await conn.query(sql)
+    } catch (err) {
+      if (err.code === 'ECONNREFUSED')
+        req.err = 'Connection refused by DB server'
+      else {
+        console.log(err.code)
+        console.log(err)
+        req.err = 'Internal server error'
+      }
+    } finally {
+      res.status(200).render('index', {
+        'err': req.err,
+        'tasks': tasks
+      })
+    }
+  }
+
+  module.exports = {
+    Create,
+    Render
+  }
   ```

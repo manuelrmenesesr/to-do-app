@@ -22,11 +22,25 @@ async function Create(req, res, next) {
     }
 }
 
-function Render(req, res) {
-    res.status(200).render('index', {
-        'err': null,
-        'tasks': []
-    })
+async function Render(req, res) {
+    let tasks = []
+    try {
+        let sql = "SELECT * FROM tasks ORDER BY priority DESC, title"
+        tasks = await conn.query(sql)
+    } catch (err) {
+        if (err.code === 'ECONNREFUSED')
+            req.err = 'Connection refused by DB server'
+        else {
+            console.log(err.code)
+            console.log(err)
+            req.err = 'Internal server error'
+        }
+    } finally {
+        res.status(200).render('index', {
+            'err': req.err,
+            'tasks': tasks
+        })
+    }
 }
 
 module.exports = {
