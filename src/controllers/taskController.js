@@ -22,6 +22,27 @@ async function Create(req, res, next) {
     }
 }
 
+async function Redo(req, res, next) {
+    try {
+        let sql = 'SELECT done FROM tasks WHERE id = ?'
+        let query = mysql.format(sql, [req.params.id])
+        let task = await conn.query(query)
+        sql = 'UPDATE tasks SET done = ? WHERE ID = ?'
+        query = mysql.format(sql, [!task[0].done, req.params.id])
+        await conn.query(query)
+    } catch (err) {
+        if (err.code === 'ECONNREFUSED')
+            req.err = "Connection refused by DB server"
+        else {
+            console.log(err.code)
+            console.log(err)
+            req.err = 'Internal server error'
+        }
+    } finally {
+        next()
+    }
+}
+
 async function Render(req, res) {
     let tasks = []
     try {
@@ -45,5 +66,6 @@ async function Render(req, res) {
 
 module.exports = {
     Create,
+    Redo,
     Render
 }

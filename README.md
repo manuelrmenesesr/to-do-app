@@ -1007,3 +1007,219 @@
     Render
   }
   ```
+
+## Marcar como Hecha/Rehacer Tarea
+
+  Ahora es momento de poder manipular estas tareas marcandolas como hecha o para rehacer la tarea, que no es nada más que hacer un update.
+
+  Empezaremos por crear una nueva función para editar las tareas dentro del archivo `taskController.js`:
+
+  ``` JavaScript
+  async function Redo(req, res, next) {
+
+  }
+  ```
+
+  Colocaremos la sentencia para buscar primero la tarea que se quiere actualizar (sólo nos interesa el estado de `done`) dentro de un try-catch-finally ya que estamos usando Async-Await:
+  
+  ``` JavaScript
+  async function Redo(req, res, next) {
+    try {
+      let sql = 'SELECT done FROM tasks WHERE id = ?'
+    } catch (err) {
+
+    } finally {
+
+    }
+  }
+  ```
+
+  Ahora formateamos la sentencia con el valor que recibiremos por la URL, es por eso que se coloca `req.params.id`, en otras palabras, la variable id dentro de los parámetros (`params`) que recibamos en la petición (`req`), más adelante, cuando creemos la ruta de acceso, explicaré cómo solicitar el parámetro:
+
+  ``` JavaScript
+  async function Redo(req, res, next) {
+    try {
+      let sql = 'SELECT done FROM tasks WHERE id = ?'
+      let query = mysql.format(sql, [req.params.id])
+    } catch (err) {
+
+    } finally {
+
+    }
+  }
+  ```
+
+  Ejecutamos la consulta y la guardamos en una variable:
+
+  ``` JavaScript
+  async function Redo(req, res, next) {
+    try {
+      let sql = 'SELECT done FROM tasks WHERE id = ?'
+      let query = mysql.format(sql, [req.params.id])
+      let task = await conn.query(query)
+    } catch (err) {
+
+    } finally {
+
+    }
+  }
+  ```
+
+  Ya que tenemos la tarea que se va a actualizar, repetimos el proceso anterior pero cambiamos la sentencia a `update`, y de información se le envía el estado negado (para que se cambie sea lo que traiga) y el ID:
+
+  ``` JavaScript
+  async function Redo(req, res, next) {
+    try {
+      let sql = 'SELECT done FROM tasks WHERE id = ?'
+      let query = mysql.format(sql, [req.params.id])
+      let task = await conn.query(query)
+      sql = 'UPDATE tasks SET done = ? WHERE ID = ?'
+      query = mysql.format(sql, [!task[0].done, req.params.id])
+      await conn.query(query)
+    } catch (err) {
+
+    } finally {
+
+    }
+  }
+  ```
+
+  Ya sólo queda mandar mensaje para cualquier tipo de error en el `catch` y en el `finally` el `next()` para que pase al siguiente middleware (la función Render):
+
+  ``` JavaScript
+  async function Redo(req, res, next) {
+    try {
+      let sql = 'SELECT done FROM tasks WHERE id = ?'
+      let query = mysql.format(sql, [req.params.id])
+      let task = await conn.query(query)
+      sql = 'UPDATE tasks SET done = ? WHERE ID = ?'
+      query = mysql.format(sql, [!task[0].done, req.params.id])
+      await conn.query(query)
+    } catch (err) {
+      if (err.code === 'ECONNREFUSED')
+        req.err = "Connection refused by DB server"
+      else {
+        console.log(err.code)
+        console.log(err)
+        req.err = 'Internal server error'
+      }
+    } finally {
+      next()
+    }
+  }
+  ```
+
+  Una vez hecha la función, la exportamos:
+
+  ``` JavaScript
+  module.exports = {
+    Create,
+    Redo,
+    Render
+  }
+  ```
+
+  Y finalmente, para que esto funcione hay que crear una ruta nueva, que es la que se manda a llamar al momento de presionar el botón de `done/redo` de la vista. En el archivo `taskRoutes.js` agregamos la siguiente ruta:
+
+  ``` JavaScript
+  router.get('/redo/:id', taskController.Redo, taskController.Render)
+  ```
+
+  Al final del `path` de la ruta, verás `:id`, eso significa que recibiremos un parámetro por la URL con el nombre `id` (que fue lo que se comentó anteriormente).
+  
+  Guardamos cambios, nodemon recargará el servidor, recarga tu navegador y ahora podrás marcar como hecha o rehacer una tarea.
+
+  ### taskController.js
+
+  ``` JavaScript
+  const mysql = require('mysql')
+  const uuidv4 = require('uuid/v4')
+  const conn = require('../db/conn')
+
+  async function Create(req, res, next) {
+    try {
+      let sql = 'INSERT INTO tasks VALUES(?, ?, ?, ?, ?)'
+      let query = mysql.format(sql, [uuidv4(), req.body.title, req.body.description, req.body.priority, false])
+      await conn.query(query)
+    } catch (err) {
+      if (err.code === 'ECONNREFUSED')
+        req.err = "Connection refused by DB server"
+      else if (err.code === 'ER_DUP_ENTRY')
+        req.err = "Duplicated tasks' title are not allowed"
+      else {
+        console.log(err.code)
+        console.log(err)
+        req.err = 'Internal server error'
+      }
+    } finally {
+      next()
+    }
+  }
+
+  async function Redo(req, res, next) {
+    try {
+      let sql = 'SELECT done FROM tasks WHERE id = ?'
+      let query = mysql.format(sql, [req.params.id])
+      let task = await conn.query(query)
+      sql = 'UPDATE tasks SET done = ? WHERE ID = ?'
+      query = mysql.format(sql, [!task[0].done, req.params.id])
+      await conn.query(query)
+    } catch (err) {
+      if (err.code === 'ECONNREFUSED')
+        req.err = "Connection refused by DB server"
+      else {
+        console.log(err.code)
+        console.log(err)
+        req.err = 'Internal server error'
+      }
+    } finally {
+      next()
+    }
+  }
+
+  async function Render(req, res) {
+    let tasks = []
+    try {
+      let sql = "SELECT * FROM tasks ORDER BY priority DESC, title"
+      tasks = await conn.query(sql)
+    } catch (err) {
+      if (err.code === 'ECONNREFUSED')
+        req.err = 'Connection refused by DB server'
+      else {
+        console.log(err.code)
+        console.log(err)
+        req.err = 'Internal server error'
+      }
+    } finally {
+      res.status(200).render('index', {
+        'err': req.err,
+        'tasks': tasks
+      })
+    }
+  }
+
+  module.exports = {
+    Create,
+    Redo,
+    Render
+  }
+  ```
+
+  ### taskRoutes.js
+
+  ``` JavaScript
+  const express = require('express')
+  const taskController = require('../controllers/taskController')
+
+  const router = express.Router()
+
+  router.route('/')
+    .get(taskController.Render)
+    .post(taskController.Create, taskController.Render)
+  router.get('/redo/:id', taskController.Redo, taskController.Render)
+  router.all('/*', (req, res) => {
+    res.status(404).send("404 Not Found")
+  })
+
+  module.exports = router
+  ```
