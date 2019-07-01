@@ -1267,6 +1267,127 @@
   router.get('/delete/:id', taskController.Delete, taskController.Render)
   ```
 
-  Guardamos los cambios, nodemon actualizará el servidor y podrás eliminar tareas!
+  Guardamos los cambios, nodemon actualizará el servidor y podrás eliminar tareas
+
+  ### taskController.js
+
+  ``` JavaScript
+  const mysql = require('mysql')
+  const uuidv4 = require('uuid/v4')
+  const conn = require('../db/conn')
+
+  async function Delete(req, res, next) {
+    try {
+      let sql = 'DELETE FROM tasks WHERE id = ?'
+      let query = mysql.format(sql, [req.params.id])
+      await conn.query(query)
+    } catch (err) {
+      if (err.code === 'ECONNREFUSED')
+        req.err = "Connection refused by DB server"
+      else {
+        console.log(err.code)
+        console.log(err)
+        req.err = 'Internal server error'
+      }
+    } finally {
+      next()
+    }
+  }
+
+  async function Create(req, res, next) {
+    try {
+      let sql = 'INSERT INTO tasks VALUES(?, ?, ?, ?, ?)'
+      let query = mysql.format(sql, [uuidv4(), req.body.title, req.body.description, req.body.priority, false])
+      await conn.query(query)
+    } catch (err) {
+      if (err.code === 'ECONNREFUSED')
+        req.err = "Connection refused by DB server"
+      else if (err.code === 'ER_DUP_ENTRY')
+        req.err = "Duplicated tasks' title are not allowed"
+      else {
+        console.log(err.code)
+        console.log(err)
+        req.err = 'Internal server error'
+      }
+    } finally {
+      next()
+    }
+  }
+
+  async function Redo(req, res, next) {
+    try {
+      let sql = 'SELECT done FROM tasks WHERE id = ?'
+      let query = mysql.format(sql, [req.params.id])
+      let task = await conn.query(query)
+      sql = 'UPDATE tasks SET done = ? WHERE ID = ?'
+      query = mysql.format(sql, [!task[0].done, req.params.id])
+      await conn.query(query)
+    } catch (err) {
+      if (err.code === 'ECONNREFUSED')
+        req.err = "Connection refused by DB server"
+      else {
+        console.log(err.code)
+        console.log(err)
+        req.err = 'Internal server error'
+      }
+    } finally {
+      next()
+    }
+  }
+
+  async function Render(req, res) {
+    let tasks = []
+    try {
+      let sql = "SELECT * FROM tasks ORDER BY priority DESC, title"
+      tasks = await conn.query(sql)
+    } catch (err) {
+      if (err.code === 'ECONNREFUSED')
+        req.err = 'Connection refused by DB server'
+      else {
+        console.log(err.code)
+        console.log(err)
+        req.err = 'Internal server error'
+      }
+    } finally {
+      res.status(200).render('index', {
+        'err': req.err,
+        'tasks': tasks
+      })
+    }
+  }
+
+  module.exports = {
+    Delete,
+    Create,
+    Redo,
+    Render
+  }
+  ```
+
+  ### taskRoutes.js
+
+  ``` JavaScript
+  const express = require('express')
+  const taskController = require('../controllers/taskController')
+
+  const router = express.Router()
+
+  router.route('/')
+    .get(taskController.Render)
+    .post(taskController.Create, taskController.Render)
+  router.get('/redo/:id', taskController.Redo, taskController.Render)
+  router.get('/delete/:id', taskController.Delete, taskController.Render)
+  router.all('/*', (req, res) => {
+    res.status(404).send("404 Not Found")
+  })
+
+  module.exports = router
+  ```
+
+### Cierre e Instalación
   
   Este es un pequeño ejemplo de cómo hacer un simple sistema para la gestión de tareas, esto aún lo puedes hacer crecer, como agregándole un login, hacerlo una API para consumirlo con Angular, React o Vue, usar tokens para agregar seguridad a las sesiones y passport.js. Pero todo esto ya te toca investigarlo por tu cuenta, la tecnología va y viene y es importante que estudies lo que te gusta. Aquí utilizamos únicamente JavaScript, actualmente JS es un lenguaje muy flexible, puedes hacer aplicaciones móviles para cualquier sistema operativo, de escritorio, el back-end y páginas web. Por lo que es importante que lo aprendas. Con cariño Manuel Meneses. :grin::thumbsup:
+
+  - En la consola escribir `gir clone https://github.com/maeneser/to-do-app.git` (debes tener git instalado) o simplemente descargalo.
+  - Dentro de la carpeta escribe `npm install` para descargar las dependencias.
+  - Y ahora `npm run dev`
