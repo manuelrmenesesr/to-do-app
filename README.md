@@ -1223,3 +1223,50 @@
 
   module.exports = router
   ```
+
+## Eliminar una Tarea
+
+  Sólo nos queda eliminar tareas, ya conociendo el funcionamiento de las funciones que hemos hecho anteriormente ya no será complicado hacer esta última.
+  
+  Para la función de eliminar, se crea la consulta SQL, se formatea y se ejecuta dentro de un try-catch-finally:
+
+  ``` JavaScript
+  async function Delete(req, res, next) {
+    try {
+      let sql = 'DELETE FROM tasks WHERE id = ?'
+      let query = mysql.format(sql, [req.params.id])
+      await conn.query(query)
+    } catch (err) {
+      if (err.code === 'ECONNREFUSED')
+        req.err = "Connection refused by DB server"
+      else {
+        console.log(err.code)
+        console.log(err)
+        req.err = 'Internal server error'
+      }
+    } finally {
+      next()
+    }
+  }
+  ```
+
+  Exportamos la función:
+
+  ``` JavaScript
+  module.exports = {
+    Delete,
+    Create,
+    Redo,
+    Render
+  }
+  ```
+
+  Y agregamos la ruta:
+
+  ``` JavaScript
+  router.get('/delete/:id', taskController.Delete, taskController.Render)
+  ```
+
+  Guardamos los cambios, nodemon actualizará el servidor y podrás eliminar tareas!
+  
+  Este es un pequeño ejemplo de cómo hacer un simple sistema para la gestión de tareas, esto aún lo puedes hacer crecer, como agregándole un login, hacerlo una API para consumirlo con Angular, React o Vue, usar tokens para agregar seguridad a las sesiones y passport.js. Pero todo esto ya te toca investigarlo por tu cuenta, la tecnología va y viene y es importante que estudies lo que te gusta. Aquí utilizamos únicamente JavaScript, actualmente JS es un lenguaje muy flexible, puedes hacer aplicaciones móviles para cualquier sistema operativo, de escritorio, el back-end y páginas web. Por lo que es importante que lo aprendas. Con cariño Manuel Meneses. :grin::thumbsup:

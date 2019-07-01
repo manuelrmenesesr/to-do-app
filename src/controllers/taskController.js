@@ -2,6 +2,24 @@ const mysql = require('mysql')
 const uuidv4 = require('uuid/v4')
 const conn = require('../db/conn')
 
+async function Delete(req, res, next) {
+    try {
+        let sql = 'DELETE FROM tasks WHERE id = ?'
+        let query = mysql.format(sql, [req.params.id])
+        await conn.query(query)
+    } catch (err) {
+        if (err.code === 'ECONNREFUSED')
+            req.err = "Connection refused by DB server"
+        else {
+            console.log(err.code)
+            console.log(err)
+            req.err = 'Internal server error'
+        }
+    } finally {
+        next()
+    }
+}
+
 async function Create(req, res, next) {
     try {
         let sql = 'INSERT INTO tasks VALUES(?, ?, ?, ?, ?)'
@@ -65,6 +83,7 @@ async function Render(req, res) {
 }
 
 module.exports = {
+    Delete,
     Create,
     Redo,
     Render
